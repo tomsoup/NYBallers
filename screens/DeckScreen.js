@@ -1,92 +1,110 @@
 import React, { Component } from 'react';
-import { Text, View, Platform } from 'react-native';
+import { Text, View, Platform, Image } from 'react-native';
+
 import { connect } from 'react-redux';
-import { MapView } from 'expo';
 import { Card, Button, Icon } from 'react-native-elements';
 import Swipe from '../components/Swipe';
+import Player from '../components/Player';
+import SwagTitle from '../components/SwagTitle';
 import * as actions from '../actions';
+import { COURTS } from '../data/data';
+import { BOARD, BOARD_BORDER, HEIGHT } from '../data/Size';
 
 class DeckScreen extends Component {
-  static navigationOptions = {
-    title: 'Jobs',
-    tabBarIcon: ({ tintColor }) => {
-        return (
-          <Icon name="description" size={25} color={tintColor} />
-        );
-      }
-
-  }
-  renderCard(job) {
-    const initialRegion = {
-      longitude: job.longitude,
-      latitude: job.latitude,
-      latitudeDelta: 0.045,
-      longitudeDelta: 0.02
-    };
-
-    return (
-      <Card title={job.jobtitle}>
-        <View style={{ height: 300 }}>
-          <MapView
-            ScrollEnabled={false}
-            style={{ flex: 1 }}
-            cacheEnabled={Platform.OS === 'android'}
-            initialRegion={initialRegion}
-          />
-        </View>
-        <View style={styles.detailWrapper}>
-          <Text>{job.company}</Text>
-          <Text>{job.formattedRelativeTime}</Text>
-        </View>
-        <Text>
-          {job.snippet.replace(/<b>/g, '').replace(/<\/b/g, '')}
-        </Text>
-      </Card>
-    );
-  }
+  static navigationOptions = ({navigation}) => ({
+    header: (
+        <SwagTitle
+          title={'COURTS'}
+        />
+      )
+  })
 
   renderNoMoreCards() {
     return (
-      <Card title="No More Jobs">
-        <Button
-          title='Back To Map'
-          large
-          icon={{ name: 'my-location' }}
-          backgroundColor="#03a9f4"
-          onPress={() => this.props.navigation.navigate('map')}
-        />
+      <Card title="Sorry! There are no more games today! Come back next time!"
+        titleStyle={{
+          color:'orange',
+          borderBottomWidth: 0,
+        }}
+
+        wrapperStyle={{
+          borderBottomWidth: 0,
+          borderWidth: 0
+        }}
+        containerStyle={
+        {
+          backgroundColor: 'rgba(0, 0, 0, 1)', borderColor: 'rgba(255, 255, 255, 1)', borderRadius: 10, color: 'orange',  marginTop: 250
+        }
+      }
+      >
+
       </Card>
     );
   }
 
+  renderCard(players) {
+    const deconstructPlayers = (players) => {
+
+    return players.map((player, position) =>
+    <Player player={player} key={position}/>
+
+    )};
+
+    return (
+      <Card containerStyle={
+        {
+          backgroundColor: 'rgba(0, 0, 0, 1)', borderColor: 'orange', borderRadius: 10
+        }
+      }>
+        <View style={{
+        width: BOARD,
+        height: BOARD,
+        borderWidth: BOARD_BORDER,
+        borderColor: 'black',
+        flexDirection: 'row',
+        flexWrap: 'wrap',
+        justifyContent: 'space-between'
+      }}>
+        {deconstructPlayers(players)}
+        </View>
+      </Card>
+    );
+  }
+
+
   render() {
     return (
-      <View style={{ marginTop: 15 }}>
-        <Swipe
-          keyProp='jobkey'
-          data={this.props.jobs}
-          renderCard={this.renderCard}
-          renderNoMoreCards={this.renderNoMoreCards.bind(this)}
-          onSwipeRight={job => this.props.likeJob(job)}
+      <Image source={{uri: `http://3.bp.blogspot.com/-GKttXVDxpfo/UFIyuiwmzqI/AAAAAAAAAO8/woQPagNlT-A/s1600/BasketBall+Court.jpg`}} style={styles.backgroundImage} >
+            <View style={{ marginTop: 15, backgroundColor: 'transparent' }}>
+              <Swipe
+                keyProp='jobkey'
+                data={COURTS}
+                renderCard={this.renderCard}
+                renderNoMoreCards={this.renderNoMoreCards.bind(this)}
+                onSwipeRight={()=> this.props.navigation.navigate('final')}
 
-        />
+              />
 
-      </View>
+          </View>
+
+    </Image>
     );
   }
 }
 
 const styles = {
-
   detailWrapper: {
     flexDirection: 'row',
     justifyContent: 'space-around',
     marginBottom: 10
-  }
+  },
+  backgroundImage: {
+    flex: 1,
+   width: null,
+   height: null,
+   resizeMode: 'cover'
+ }
 };
 
-const mapStateToProps = ({ jobs }) => {
-  return { jobs: jobs.results };
-};
 
-export default connect(mapStateToProps, actions)(DeckScreen);
+export default DeckScreen;

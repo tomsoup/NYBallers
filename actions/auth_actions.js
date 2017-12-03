@@ -2,7 +2,8 @@ import { AsyncStorage } from 'react-native';
 import { Facebook } from 'expo';
 import {
   FACEBOOK_LOGIN_SUCCESS,
-  FACEBOOK_LOGIN_FAIL
+  FACEBOOK_LOGIN_FAIL,
+  GET_NAME
 } from './types';
 
 
@@ -40,4 +41,13 @@ const doFacebaookLogin = async (dispatch) => {
   dispatch({
     type: FACEBOOK_LOGIN_SUCCESS, payload: token
   });
+};
+
+
+export const getName = (name, callback) => {
+   callback();
+   console.log(name);
+   return {
+      type: GET_NAME, payload: name
+    };
 };
